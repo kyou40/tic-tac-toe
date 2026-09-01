@@ -1,0 +1,298 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Quicksand:wght@400;500;600&display=swap");
+
+:root {
+  --board-bg: rgba(36, 63, 115, 0.379);
+  --cell-bg: rgba(7, 21, 46, 0.272);
+  --cell-bg-hover: rgba(50, 120, 200, 0.15);
+  --grid-line: rgba(150, 200, 255, 0.3);
+  --frame-glow: rgba(150, 210, 255, 0.55);
+
+  --p1-light: #ffe3ef;
+  --p1-mid: #ffb8d6;
+  --p1-cyan: #bdeaff;
+  --p1-core: #ff8fbf;
+
+  --p2-light: #cfc0ff;
+  --p2-mid: #7a63e8;
+  --p2-deep: #3a2a8f;
+  --p2-core: #5c3ee0;
+
+  --ring-p1: #ff4d4d;
+  --ring-p1-glow: rgba(255, 77, 77, 0.75);
+  --ring-p2: #4dc8ff;
+  --ring-p2-glow: rgba(77, 200, 255, 0.75);
+
+  --win-gold: #ffffff;
+  --win-glow: #d5ebff;
+}
+
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem 1rem;
+  font-family: "Quicksand", sans-serif;
+  background: url("./assets/silvermoon-hall.webp") fixed no-repeat center /
+    cover;
+}
+
+.title {
+  font-family: "Cinzel", serif;
+  font-weight: 600;
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  letter-spacing: 0.04rem;
+  color: #eaf3ff;
+  text-align: center;
+  text-shadow:
+    0 0 12px rgba(150, 200, 255, 0.65),
+    0 0 28px rgba(90, 150, 255, 0.35);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+  gap: 1.5rem;
+}
+
+.message-bar {
+  font-family: "Cinzel", serif;
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: 0.03em;
+  color: #eaf3ff;
+  text-shadow:
+    0 0 12px rgba(150, 200, 255, 0.65),
+    0 0 28px rgba(90, 150, 255, 0.35);
+  min-height: 1.5rem;
+}
+
+.fieldset {
+  --size: min(78vw, 420px);
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  background: var(--board-bg);
+  backdrop-filter: blur(2px);
+  border: 1px solid var(--grid-line);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 24px rgba(90, 160, 255, 0.25),
+    0 0 60px rgba(40, 90, 200, 0.18);
+  transition:
+    box-shadow 0.6s ease,
+    border-color 0.6s ease;
+}
+
+/* Decorative corner nodes */
+.fieldset::before,
+.fieldset::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--frame-glow);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.fieldset::before {
+  top: -8px;
+  left: -8px;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 6px 0 0 0;
+}
+
+.fieldset::after {
+  bottom: -8px;
+  right: -8px;
+  border-left: none;
+  border-top: none;
+  border-radius: 0 0 6px 0;
+}
+
+/* ---------- Cells ---------- */
+
+.field {
+  position: relative;
+  background: var(--cell-bg);
+  border: 1px solid var(--grid-line); /* Thinned to match delicate grid in images */
+  cursor: pointer;
+  overflow: visible;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  text-align: center;
+  align-content: center;
+  color: white;
+}
+
+.field[data-filled="true"] {
+  cursor: default;
+}
+
+/* Updated Hover State based on Screenshot 1 */
+.field:not([data-filled="true"]):hover {
+  background: var(--cell-bg-hover);
+  border: 2px solid #ffffff;
+  box-shadow:
+    0 0 30px 4px rgba(150, 210, 255, 0.6) inset,
+    0 0 15px 2px rgba(150, 210, 255, 0.8);
+  z-index: 10; /* Pops the hovered border above surrounding grid lines */
+}
+
+/* ---------- Marks (X / O) ---------- */
+
+.field.sign-x::after,
+.field.sign-o::after {
+  content: attr(data-mark);
+  font-weight: 800;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
+  font-size: min(14vw, 64px);
+  line-height: 1;
+  animation: mark-appear 0.25s ease-out;
+}
+
+.field.sign-x::after {
+  background: linear-gradient(
+    160deg,
+    var(--p1-light) 0%,
+    var(--p1-cyan) 45%,
+    var(--p1-mid) 75%,
+    var(--p1-core) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 6px rgba(255, 170, 210, 0.65))
+    drop-shadow(0 0 14px rgba(190, 220, 255, 0.4));
+}
+
+.field.sign-o::after {
+  background: linear-gradient(
+    160deg,
+    var(--p2-light) 0%,
+    var(--p2-core) 45%,
+    var(--p2-mid) 75%,
+    var(--p2-deep) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 6px rgba(120, 90, 230, 0.65))
+    drop-shadow(0 0 14px rgba(70, 50, 180, 0.4));
+}
+
+@keyframes mark-appear {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.field.sign-warn::after {
+  animation:
+    mark-appear 0.25s ease-out,
+    mark-fade-warn 1.4s ease-in-out infinite;
+}
+
+@keyframes mark-fade-warn {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(150, 215, 255, 0.5)) brightness(1);
+  }
+  50% {
+    opacity: 0.35;
+    filter: drop-shadow(0 0 10px rgba(150, 185, 255, 0.8)) brightness(1.4);
+  }
+}
+
+/* ---------- Win state ---------- */
+
+.fieldset.win .field {
+  animation: board-victory 2.5s ease-out forwards;
+}
+
+.fieldset.win-x .field,
+.fieldset.win-o .field {
+  border-color: rgba(150, 200, 255, 0.4);
+}
+
+@keyframes board-victory {
+  0% {
+    border-color: var(--grid-line);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+      0 0 24px rgba(90, 160, 255, 0.25);
+  }
+  15% {
+    /* Intense flash peak */
+    border-color: #ffffff;
+    box-shadow:
+      0 0 40px 1px rgba(150, 220, 255, 0.8) inset,
+      0 0 40px 2px rgba(150, 220, 255, 1);
+  }
+  100% {
+    /* Dims down into a sustained subtle glow */
+    border-color: rgba(200, 230, 255, 0.7);
+    box-shadow:
+      0 0 15px 1px rgba(150, 220, 255, 0.3) inset,
+      0 0 35px 1px rgba(100, 180, 255, 0.4);
+  }
+}
+
+/* ---------- Restart button ---------- */
+
+.btn-row {
+  display: flex;
+  justify-content: center;
+}
+
+.btn {
+  font-family: "Cinzel", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: #eaf3ff;
+  background: rgba(30, 52, 96, 0.75);
+  border: 1px solid var(--frame-glow);
+  border-radius: 8px;
+  padding: 0.6rem 1.6rem;
+  cursor: pointer;
+  box-shadow: 0 0 16px rgba(120, 180, 255, 0.4);
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.1s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 480px) {
+  .fieldset {
+    --size: 88vw;
+  }
+}
